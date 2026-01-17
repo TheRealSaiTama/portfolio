@@ -31,7 +31,7 @@ const config = {
   social: {
     twitter: "https://x.com/CodesPasta",
     linkedin: "https://www.linkedin.com/in/therealsaitama/",
-    instagram: "",
+    instagram: "https://www.instagram.com/stillhatetrigo/",
     facebook: "",
     github: "https://github.com/TheRealSaiTama",
   },
