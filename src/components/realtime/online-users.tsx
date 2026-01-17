@@ -23,8 +23,7 @@ import { THEME } from "./constants";
 import { getAvatarUrl } from "@/lib/avatar";
 
 const OnlineUsers = () => {
-  const { socket, users: _users, msgs } = useContext(SocketContext);
-  const users = Array.from(_users.values());
+  const { socket, users, msgs } = useContext(SocketContext);
   const [showUserList, setShowUserList] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);

@@ -11,6 +11,7 @@ import {
 import { usePreloader } from "../preloader";
 import { BlurIn, BoxReveal } from "../reveal-animations";
 import ScrollDownIcon from "../scroll-down-icon";
+import Typewriter from "../ui/typewriter";
 import { SiGithub, SiLinkedin, SiX } from "react-icons/si";
 import { config } from "@/data/config";
 
@@ -76,15 +77,23 @@ const HeroSection = () => {
                       "cursor-default font-display sm:text-xl md:text-xl whitespace-nowrap bg-clip-text "
                     )}
                   >
-                    A Full Stack Web Developer
+                    <Typewriter 
+                      words={[
+                        "Full Stack Developer",
+                        "ML Engineer", 
+                        "AI Enthusiast",
+                        "Automation Architect"
+                      ]}
+                      typingSpeed={80}
+                      deletingSpeed={40}
+                      pauseDuration={2500}
+                    />
                   </p>
                 </BlurIn>
               </div>
               <div className="mt-8 flex flex-col gap-3 w-fit">
                 <Link
-                  href={
-                    "https://drive.google.com/file/d/1O97WCk2DrO9x6SHOqf7LvRbmHkMgGIb4/view?usp=sharing"
-                  }
+                  href={"/resume.pdf"}
                   target="_blank"
                   className="flex-1"
                 >

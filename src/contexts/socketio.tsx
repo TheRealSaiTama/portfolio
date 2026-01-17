@@ -84,6 +84,10 @@ const SocketContextProvider = ({ children }: { children: ReactNode }) => {
       setMsgs((p) => [...p, msgs]);
     });
 
+    socket.on("users", (userList: User[]) => {
+      setUsers(userList);
+    });
+
     socket.on("warning", (data: { message: string }) => {
       console.log(data)
       toast({

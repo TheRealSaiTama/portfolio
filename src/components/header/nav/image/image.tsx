@@ -1,9 +1,7 @@
 import React from "react";
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import NextImage from "next/image";
 import styles from "./style.module.scss";
-import { opacity } from "../../anim";
-import { cn } from "@/lib/utils";
 
 interface IndexProps {
   src: string;
@@ -12,21 +10,26 @@ interface IndexProps {
 
 const Index: React.FC<IndexProps> = ({ src, isActive }) => {
   return (
+    <div className={styles.imageContainer}>
+      <AnimatePresence mode="wait">
     <motion.div
-      variants={opacity}
-      initial="initial"
-      animate={isActive ? "open" : "closed"}
-      className={styles.imageContainer}
+          key={src}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
     >
-      <Image
+          <NextImage
         src={src}
         width={400}
-        height={400}
-        className="my-32 w-full h-auto object-cover"
-        alt={"Image"}
-        // priority={true}
+            height={225}
+            className="my-32 w-full h-auto object-cover rounded-xl shadow-2xl border border-white/10"
+            alt="Section Preview"
+            priority={false}
       />
     </motion.div>
+      </AnimatePresence>
+    </div>
   );
 };
 

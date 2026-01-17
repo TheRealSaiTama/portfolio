@@ -4,7 +4,7 @@ import styles from "./style.module.scss";
 import { blur, translate } from "../../anim";
 import { Link as LinkType } from "@/types";
 import { cn } from "@/lib/utils";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import FunnyThemeToggle from "@/components/theme/funny-theme-toggle";
 
@@ -27,12 +27,45 @@ export default function Body({
   setIsActive,
 }: BodyProps) {
   const params = useParams();
+  const router = useRouter();
   const [currentHref, setCurrentHref] = useState("/");
+  
   useEffect(() => {
     if (typeof window === "undefined") return;
     const { pathname, hash } = window.location;
     setCurrentHref(pathname + hash);
   }, [params]);
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Close menu first
+    setIsActive(false);
+    
+    // Handle hash links with smooth scrolling
+    if (href.startsWith('/#')) {
+      e.preventDefault();
+      const targetId = href.replace('/#', '');
+      
+      // Small delay to let menu close animation start
+      setTimeout(() => {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+          // Update URL without reload
+          window.history.pushState(null, '', href);
+        }
+      }, 300);
+    } else if (href === '/') {
+      e.preventDefault();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.history.pushState(null, '', '/');
+      }, 300);
+    }
+    // For other links like /blogs, let default behavior handle it
+  };
 
   const getChars = (word: string) => {
     let chars: JSX.Element[] = [];
@@ -66,13 +99,13 @@ export default function Body({
             href={href}
             target={target}
             className="cursor-can-hover rounded-lg"
+            onClick={(e) => handleClick(e, href)}
           >
             <motion.p
               className={cn(
                 "rounded-lg",
                 currentHref !== href ? "text-muted-foreground" : "underline"
               )}
-              onClick={() => setIsActive(false)}
               onMouseOver={() => setSelectedLink({ isActive: true, index })}
               onMouseLeave={() => setSelectedLink({ isActive: false, index })}
               variants={blur}

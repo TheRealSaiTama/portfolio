@@ -1,0 +1,17 @@
+# Deploy to Render.com for FREE
+# Go to https://render.com and create a new Web Service
+# Connect your GitHub repo and point to the /server directory
+
+services:
+  - type: web
+    name: portfolio-chat-server
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://keshavkumarjha.com,https://www.keshavkumarjha.com,http://localhost:3000

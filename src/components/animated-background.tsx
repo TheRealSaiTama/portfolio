@@ -107,26 +107,25 @@ const AnimatedBackground = () => {
     const kbd = splineApp.findObjectByName("keyboard");
     if (!kbd) return;
 
-    gsap.timeline({
-      scrollTrigger: {
+    ScrollTrigger.create({
         trigger: triggerId,
         start,
         end,
-        scrub: true,
         onEnter: () => {
           setActiveSection(targetSection);
           const state = getKeyboardState({ section: targetSection, isMobile });
-          gsap.to(kbd.scale, { ...state.scale, duration: 1 });
-          gsap.to(kbd.position, { ...state.position, duration: 1 });
-          gsap.to(kbd.rotation, { ...state.rotation, duration: 1 });
+        // Use overwrite to kill any conflicting animations
+        gsap.to(kbd.scale, { ...state.scale, duration: 0.8, ease: "power2.out", overwrite: true });
+        gsap.to(kbd.position, { ...state.position, duration: 0.8, ease: "power2.out", overwrite: true });
+        gsap.to(kbd.rotation, { ...state.rotation, duration: 0.8, ease: "power2.out", overwrite: true });
         },
         onLeaveBack: () => {
           setActiveSection(prevSection);
-          const state = getKeyboardState({ section: prevSection, isMobile, });
-          gsap.to(kbd.scale, { ...state.scale, duration: 1 });
-          gsap.to(kbd.position, { ...state.position, duration: 1 });
-          gsap.to(kbd.rotation, { ...state.rotation, duration: 1 });
-        },
+        const state = getKeyboardState({ section: prevSection, isMobile });
+        // Use overwrite to kill any conflicting animations
+        gsap.to(kbd.scale, { ...state.scale, duration: 0.8, ease: "power2.out", overwrite: true });
+        gsap.to(kbd.position, { ...state.position, duration: 0.8, ease: "power2.out", overwrite: true });
+        gsap.to(kbd.rotation, { ...state.rotation, duration: 0.8, ease: "power2.out", overwrite: true });
       },
     });
   };
@@ -284,9 +283,11 @@ const AnimatedBackground = () => {
     bongoAnimationRef.current = getBongoAnimation();
     keycapAnimationsRef.current = getKeycapsAnimation();
     return () => {
-      bongoAnimationRef.current?.stop()
-      keycapAnimationsRef.current?.stop()
-    }
+      bongoAnimationRef.current?.stop();
+      keycapAnimationsRef.current?.stop();
+      // Kill all scroll triggers to prevent stale ones
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
 
   }, [splineApp, isMobile]);
 
@@ -332,59 +333,34 @@ const AnimatedBackground = () => {
     splineApp.setVariable("desc", selectedSkill.shortDescription);
   }, [selectedSkill]);
 
+  // Store animation refs at component level to properly manage them
+  const rotateKeyboardRef = useRef<gsap.core.Tween | null>(null);
+  const teardownKeyboardRef = useRef<gsap.core.Tween | null>(null);
+  const activeSectionRef = useRef<Section>(activeSection);
+  
+  // Keep the ref in sync with state
+  useEffect(() => {
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
+
   // Handle rotation and teardown animations based on active section
   useEffect(() => {
     if (!splineApp) return;
 
-    let rotateKeyboard: gsap.core.Tween | undefined;
-    let teardownKeyboard: gsap.core.Tween | undefined;
-
     const kbd = splineApp.findObjectByName("keyboard");
+    if (!kbd) return;
 
-    if (kbd) {
-      rotateKeyboard = gsap.to(kbd.rotation, {
-        y: Math.PI * 2 + kbd.rotation.y,
-        duration: 10,
-        repeat: -1,
-        yoyo: true,
-        yoyoEase: true,
-        ease: "back.inOut",
-        delay: 2.5,
-        paused: true, // Start paused
-      });
-
-      teardownKeyboard = gsap.fromTo(
-        kbd.rotation,
-        { y: 0, x: -Math.PI, z: 0 },
-        {
-          y: -Math.PI / 2,
-          duration: 5,
-          repeat: -1,
-          yoyo: true,
-          yoyoEase: true,
-          delay: 2.5,
-          immediateRender: false,
-          paused: true,
-        }
-      );
-    }
+    // Kill any existing rotation/teardown animations before creating new ones
+    rotateKeyboardRef.current?.kill();
+    rotateKeyboardRef.current = null;
+    teardownKeyboardRef.current?.kill();
+    teardownKeyboardRef.current = null;
 
     const manageAnimations = async () => {
       // Reset text if not in skills
       if (activeSection !== "skills") {
         splineApp.setVariable("heading", "");
         splineApp.setVariable("desc", "");
-      }
-
-      // Handle Rotate/Teardown Tweens
-      if (activeSection === "hero") {
-        rotateKeyboard?.restart();
-        teardownKeyboard?.pause();
-      } else if (activeSection === "contact") {
-        rotateKeyboard?.pause();
-      } else {
-        rotateKeyboard?.pause();
-        teardownKeyboard?.pause();
       }
 
       // Handle Bongo Cat
@@ -399,22 +375,44 @@ const AnimatedBackground = () => {
       // Handle Contact Section Animations
       if (activeSection === "contact") {
         await sleep(600);
-        teardownKeyboard?.restart();
+        // Check if we're still in contact section after the delay
+        if (activeSectionRef.current !== "contact") return;
+        
+        teardownKeyboardRef.current = gsap.to(kbd.rotation, {
+          y: kbd.rotation.y + Math.PI / 4,
+          duration: 5,
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+        });
         keycapAnimationsRef.current?.start();
       } else {
-        await sleep(600);
-        teardownKeyboard?.pause();
         keycapAnimationsRef.current?.stop();
+      }
+
+      // Only rotate keyboard in hero section after a delay
+      if (activeSection === "hero") {
+        await sleep(3000);
+        // Check if we're still in hero section after the delay
+        if (activeSectionRef.current !== "hero") return;
+        
+        rotateKeyboardRef.current = gsap.to(kbd.rotation, {
+          y: kbd.rotation.y + Math.PI * 2,
+          duration: 12,
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+        });
       }
     };
 
     manageAnimations();
 
     return () => {
-      rotateKeyboard?.kill();
-      teardownKeyboard?.kill();
+      rotateKeyboardRef.current?.kill();
+      teardownKeyboardRef.current?.kill();
     };
-  }, [activeSection, splineApp]);
+  }, [activeSection, splineApp, isMobile]);
 
   // Reveal keyboard on load/route change
   useEffect(() => {

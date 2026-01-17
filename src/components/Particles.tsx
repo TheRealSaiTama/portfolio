@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useMousePosition } from "@/utils/mouse";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 
 interface ParticlesProps {
   className?: string;
@@ -15,13 +16,14 @@ interface ParticlesProps {
 
 export default function Particles({
   className = "",
-  quantity = 30,
+  quantity = 50,
   staticity = 50,
   ease = 50,
   refresh = false,
 }: ParticlesProps) {
   const pathname = usePathname();
   const isBlogPost = pathname.startsWith("/blogs/") && pathname !== "/blogs";
+  const { theme } = useTheme();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -32,8 +34,24 @@ export default function Particles({
   const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
 
+  // Neural network colors
+  const colors = {
+    dark: {
+      primary: { r: 0, g: 212, b: 255 },    // Electric cyan
+      secondary: { r: 147, g: 51, b: 234 },  // Purple
+      tertiary: { r: 57, g: 255, b: 20 },    // Neon green
+    },
+    light: {
+      primary: { r: 0, g: 170, b: 214 },
+      secondary: { r: 124, g: 58, b: 237 },
+      tertiary: { r: 34, g: 197, b: 94 },
+    }
+  };
+
+  const connectionDistance = 150;
+
   useEffect(() => {
-    if (isBlogPost) return
+    if (isBlogPost) return;
     if (canvasRef.current) {
       context.current = canvasRef.current.getContext("2d");
     }
@@ -84,6 +102,8 @@ export default function Particles({
     dx: number;
     dy: number;
     magnetism: number;
+    colorType: 'primary' | 'secondary' | 'tertiary';
+    pulsePhase: number;
   };
 
   const resizeCanvas = () => {
@@ -104,12 +124,14 @@ export default function Particles({
     const y = Math.floor(Math.random() * canvasSize.current.h);
     const translateX = 0;
     const translateY = 0;
-    const size = Math.floor(Math.random() * 2) + 0.1;
+    const size = Math.floor(Math.random() * 3) + 1;
     const alpha = 0;
-    const targetAlpha = parseFloat((Math.random() * 0.6 + 0.1).toFixed(1));
-    const dx = (Math.random() - 0.5) * 0.2;
-    const dy = (Math.random() - 0.5) * 0.2;
+    const targetAlpha = parseFloat((Math.random() * 0.7 + 0.2).toFixed(1));
+    const dx = (Math.random() - 0.5) * 0.3;
+    const dy = (Math.random() - 0.5) * 0.3;
     const magnetism = 0.1 + Math.random() * 4;
+    const colorType = ['primary', 'secondary', 'tertiary'][Math.floor(Math.random() * 3)] as Circle['colorType'];
+    const pulsePhase = Math.random() * Math.PI * 2;
     return {
       x,
       y,
@@ -121,17 +143,80 @@ export default function Particles({
       dx,
       dy,
       magnetism,
+      colorType,
+      pulsePhase,
     };
+  };
+
+  const getColor = (colorType: Circle['colorType']) => {
+    const palette = theme === 'dark' ? colors.dark : colors.light;
+    return palette[colorType];
+  };
+
+  const drawConnections = () => {
+    if (!context.current) return;
+    
+    for (let i = 0; i < circles.current.length; i++) {
+      for (let j = i + 1; j < circles.current.length; j++) {
+        const c1 = circles.current[i];
+        const c2 = circles.current[j];
+        
+        const x1 = c1.x + c1.translateX;
+        const y1 = c1.y + c1.translateY;
+        const x2 = c2.x + c2.translateX;
+        const y2 = c2.y + c2.translateY;
+        
+        const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        
+        if (distance < connectionDistance) {
+          const opacity = (1 - distance / connectionDistance) * 0.4 * Math.min(c1.alpha, c2.alpha);
+          const color1 = getColor(c1.colorType);
+          const color2 = getColor(c2.colorType);
+          
+          // Create gradient line
+          const gradient = context.current.createLinearGradient(x1, y1, x2, y2);
+          gradient.addColorStop(0, `rgba(${color1.r}, ${color1.g}, ${color1.b}, ${opacity})`);
+          gradient.addColorStop(1, `rgba(${color2.r}, ${color2.g}, ${color2.b}, ${opacity})`);
+          
+          context.current.beginPath();
+          context.current.strokeStyle = gradient;
+          context.current.lineWidth = 0.5;
+          context.current.moveTo(x1, y1);
+          context.current.lineTo(x2, y2);
+          context.current.stroke();
+        }
+      }
+    }
   };
 
   const drawCircle = (circle: Circle, update = false) => {
     if (context.current) {
-      const { x, y, translateX, translateY, size, alpha } = circle;
+      const { x, y, translateX, translateY, size, alpha, colorType, pulsePhase } = circle;
+      const color = getColor(colorType);
+      
+      // Pulsing glow effect
+      const pulseAmount = Math.sin(Date.now() * 0.003 + pulsePhase) * 0.3 + 0.7;
+      const glowSize = size * (1.5 + pulseAmount * 0.5);
+      
       context.current.translate(translateX, translateY);
+      
+      // Outer glow
+      const gradient = context.current.createRadialGradient(x, y, 0, x, y, glowSize * 3);
+      gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha * 0.5})`);
+      gradient.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha * 0.2})`);
+      gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+      
       context.current.beginPath();
-      context.current.arc(x, y, size, 0, 2 * Math.PI);
-      context.current.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      context.current.arc(x, y, glowSize * 3, 0, 2 * Math.PI);
+      context.current.fillStyle = gradient;
       context.current.fill();
+      
+      // Core particle
+      context.current.beginPath();
+      context.current.arc(x, y, size * pulseAmount, 0, 2 * Math.PI);
+      context.current.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+      context.current.fill();
+      
       context.current.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       if (!update) {
@@ -174,13 +259,17 @@ export default function Particles({
 
   const animate = () => {
     clearContext();
+    
+    // Draw connections first (behind particles)
+    drawConnections();
+    
     circles.current.forEach((circle: Circle, i: number) => {
       // Handle the alpha value
       const edge = [
-        circle.x + circle.translateX - circle.size, // distance from left edge
-        canvasSize.current.w - circle.x - circle.translateX - circle.size, // distance from right edge
-        circle.y + circle.translateY - circle.size, // distance from top edge
-        canvasSize.current.h - circle.y - circle.translateY - circle.size, // distance from bottom edge
+        circle.x + circle.translateX - circle.size,
+        canvasSize.current.w - circle.x - circle.translateX - circle.size,
+        circle.y + circle.translateY - circle.size,
+        canvasSize.current.h - circle.y - circle.translateY - circle.size,
       ];
       const closestEdge = edge.reduce((a, b) => Math.min(a, b));
       const remapClosestEdge = parseFloat(
@@ -202,19 +291,16 @@ export default function Particles({
       circle.translateY +=
         (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) /
         ease;
-      // circle gets out of the canvas
+      
       if (
         circle.x < -circle.size ||
         circle.x > canvasSize.current.w + circle.size ||
         circle.y < -circle.size ||
         circle.y > canvasSize.current.h + circle.size
       ) {
-        // remove the circle from the array
         circles.current.splice(i, 1);
-        // create a new circle
         const newCircle = circleParams();
         drawCircle(newCircle);
-        // update the circle position
       } else {
         drawCircle(
           {
@@ -236,10 +322,7 @@ export default function Particles({
 
   return (
     <div
-      className={cn(
-        className,
-        "dark:bg-gradient-to-tl from-black via-zinc-600/20 to-black"
-      )}
+      className={cn(className)}
       ref={canvasContainerRef}
       aria-hidden="true"
     >

@@ -24,6 +24,8 @@ export enum SkillNames {
   AWS = "aws",
   VIM = "vim",
   VERCEL = "vercel",
+  PYTHON = "python",
+  PYTORCH = "pytorch",
 }
 export type Skill = {
   id: number;
@@ -232,6 +234,22 @@ using use = useUsing("use")`,
       "The triangle compony, helps you deploy and go touch grass! 🚀🌿",
     color: "#6cc24a",
     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg",
+  },
+  [SkillNames.PYTHON]: {
+    id: 25,
+    name: "python",
+    label: "Python",
+    shortDescription: "The snake that swallowed the world of AI/ML! 🐍🤖",
+    color: "#3776ab",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+  },
+  [SkillNames.PYTORCH]: {
+    id: 26,
+    name: "pytorch",
+    label: "PyTorch",
+    shortDescription: "Tensors flowing like water, neural nets go brrr! 🔥🧠",
+    color: "#ee4c2c",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg",
   },
 };
 
