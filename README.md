@@ -1,74 +1,77 @@
-# 🚀 My Portfolio Website
+<p align="center">
+  <img src="public/assets/seo/readme-hero.svg" alt="Keshav Kumar Jha — 3D portfolio" width="100%" />
+</p>
 
-Welcome to the repository for my personal portfolio website! This is where I showcase my skills, projects, and a bit of my personality through jaw-dropping 3D animations, slick interactions, and fluid motion. If you're into creative web design, you're in the right place.
+<h1 align="center">My Portfolio Website</h1>
+<p align="center">
+  A motion‑rich, 3D‑flavored portfolio built with Next.js — interactive UI, smooth transitions, and a space vibe.
+</p>
 
-![Portfolio Preview](https://github.com/Naresh-Khatri/Portfolio/blob/main/public/assets/projects-screenshots/portfolio/landing.png?raw=true)
+<p align="center">
+  <a href="https://github.com/TheRealSaiTama/portfolio">Repo</a>
+  ·
+  <a href="https://github.com/TheRealSaiTama/portfolio/issues">Issues</a>
+</p>
 
-## 🔥 Features
+## Preview
 
-- **3D Animations**: Custom-made interactive keyboard using Spline with skills as keycaps that reveal titles and descriptions on hover.
-- **Slick Interactions**: Powered by GSAP and Framer Motion for smooth animations on scroll, hover, and element reveal.
-- **Space Theme**: Particles on a dark background to simulate a cosmic environment, making the experience out of this world.
-- **Responsive Design**: Fully responsive across all devices to ensure the best user experience.
-- **Innovative Web Design**: Combining creativity with functionality to push the boundaries of modern web design.
+<p align="center">
+  <img src="public/screenshots/home.png" alt="Home preview" width="92%" />
+</p>
 
-## 🛠️ Tech Stack
+<p align="center">
+  <img src="public/screenshots/techstack.png" alt="Tech stack preview" width="45%" />
+  <img src="public/screenshots/Experience.png" alt="Experience preview" width="45%" />
+</p>
 
-- **Frontend**: Next.js, React, Tailwind CSS, Shadcn, Aceternity UI
-- **Animations**: GSAP, Framer Motion, Spline Runtime
-- **Misc**: Resend, Socketio, Zod
+## What makes it pop
 
-## 🚀 Getting Started
+- **3D UI**: Interactive Spline keyboard with “keycaps” that reveal skills/details.
+- **Motion**: GSAP + Framer Motion for scroll, hover, and micro‑interactions.
+- **Space theme**: Particle field + subtle glows for a cosmic feel.
+- **Real‑time playground**: Socket.io powered experiments and live UI bits.
+- **Responsive**: Designed to look sharp on desktop and mobile.
+
+## Tech stack
+
+- **Core**: Next.js, React, TypeScript, Tailwind CSS
+- **UI**: shadcn/ui + custom components
+- **Animation**: GSAP, Framer Motion, Spline Runtime
+- **Other**: Zod, Resend, Socket.io
+
+## Getting started
 
 ### Prerequisites
 
-- Node.js (v14+)
-- npm or yarn
+- Node.js (v18+ recommended)
+- npm / pnpm / yarn
 
-### Installation
+### Install & run
 
-1. Clone the repository:
+```bash
+git clone https://github.com/TheRealSaiTama/portfolio.git
+cd portfolio
+npm install
+npm run dev
+```
 
-    ```bash
-    git clone https://github.com/Naresh-Khatri/Portfolio.git
-    ```
+Open `http://localhost:3000`.
 
-2. Navigate to the project directory:
+## Scripts
 
-    ```bash
-    cd Portfolio
-    ```
+- `npm run dev` — local dev server
+- `npm run build` — production build
+- `npm run start` — run production server
+- `npm run lint` — lint (Next.js ESLint)
 
-3. Install dependencies:
+## Deployment
 
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+This project is designed to be deployed on Vercel:
 
-4. Run the development server:
+1. Push to GitHub.
+2. Import the repo in Vercel.
+3. Deploy — every push triggers a redeploy.
 
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
+## License
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the magic!
-
-## 🚀 Deployment
-
-This site is deployed on Vercel. For your own deployment, follow these steps:
-
-1. Push your code to a GitHub repository.
-2. Connect your repository to Vercel.
-3. Vercel will handle the deployment process.
-
-## 🤝 Contributing
-
-If you'd like to contribute or suggest improvements, feel free to open an issue or submit a pull request. All contributions are welcome!
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+MIT — see `LICENSE`.
