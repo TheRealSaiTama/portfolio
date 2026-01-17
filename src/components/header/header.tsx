@@ -55,7 +55,8 @@ const Header = ({ loader }: HeaderProps) => {
         </Link>
 
         <FunnyThemeToggle className="w-6 h-6 mr-4 hidden md:flex" />
-        <OnlineUsers />
+        {/* Chat disabled - enable when you have a WebSocket server */}
+        {/* <OnlineUsers /> */}
         {config.githubUsername && config.githubRepo && (
           <GitHubStarsButton
             username={config.githubUsername}
