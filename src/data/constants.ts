@@ -269,7 +269,7 @@ export const EXPERIENCE: Experience[] = [
     startDate: "Dec 2024",
     endDate: "Present",
     title: "Full Stack Engineer",
-    company: "OmniNexus",
+    company: "Belled",
     description: [
       "Developing scalable full-stack applications involved in complex systems.",
       "Optimizing database performance and query efficiency.",
